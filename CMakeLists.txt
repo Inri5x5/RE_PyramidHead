@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project("COMP3421 Assignment 3")
+project("COMP3421 Tutorial 09")
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -25,17 +25,28 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 include(copy_resources)
 copy_resources(${CMAKE_CURRENT_LIST_DIR}/res ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res)
 
-set(ACTIVITY ass3)
+set(ACTIVITY tute09_portal)
 add_executable(${ACTIVITY})
 target_include_directories(${ACTIVITY} PUBLIC include)
 target_sources(${ACTIVITY}
         ${target}
         PRIVATE
-        include/ass3/memes.hpp
+        include/tute09/camera.hpp
+        include/tute09/memes.hpp
+        include/tute09/model.hpp
+        include/tute09/renderer.hpp
+        include/tute09/scene.hpp
+        include/tute09/animator.hpp
 
-
+        src/animator.cpp
+        src/camera.cpp
         src/main.cpp
         src/memes.cpp
+        src/model.cpp
+        src/renderer.cpp
+        src/scene.cpp
+        src/framebuffer.cpp
+        src/cubemap.cpp
         )
 target_link_libraries(${ACTIVITY} PUBLIC ${COMMON_LIBS})
 target_compile_options(
