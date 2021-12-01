@@ -16,7 +16,7 @@ out vec3 vPos;
 void main() {
     vTexCoord = a_tex_coord;
     vec4 view_pos = u_model_view * a_pos;
-    gl_Position = u_projection * view_pos;
+    gl_Position = u_projection*view_pos;
 
     vNormal = mat3(u_model_view) * a_normal;
     vPos = view_pos.xyz;
