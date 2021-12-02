@@ -27,6 +27,12 @@ struct node_t {
         MIRROR,
         HEART
     } kind = EMPTY;
+
+    enum {
+        NONE,
+        ROTATION
+    } anime = NONE;
+
     glm::mat4 transform = glm::mat4(1);
     std::vector<node_t> children {};
     point_light_t point_lightA;

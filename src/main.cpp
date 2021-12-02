@@ -41,7 +41,8 @@ int main() {
     framebuffer_t HDRframebuffer = make_HDRframebuffer(fb_width, fb_height);
     framebuffer_t scary_framebuffer = make_framebuffer(fb_width, fb_height);
     framebuffer_t CMframebuffer = make_CubeMapframebuffer(cm_size, cm_size);
-    cubecamera_t cubecamera = make_cubecamera({ 0, 1, 0 }, {-10, 10, 0 });
+    camera_t cubecamera = make_camera({ 0, 1, 0 }, {-10, 10, 0 });
+    gframebuffer_t gframebuffer = make_gframebuffer(fb_width, fb_height);
     node_t scene1 = make_scene(framebuffer.texture, CMframebuffer.texture);
     renderer_t renderer = make_renderer(glm::perspective(glm::pi<double>() / 3, 1280.0 / 720, 0.001, 1000.0));
 
@@ -94,14 +95,21 @@ int main() {
         //render to framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer.fbo);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //glEnable(GL_CLIP_DISTANCE0);
+        glEnable(GL_CLIP_DISTANCE0);
         render(renderer, cam2, scene1);
-        //glDisable(GL_CLIP_DISTANCE0);
+        glDisable(GL_CLIP_DISTANCE0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // glBindFramebuffer(GL_FRAMEBUFFER,gframebuffer.fbo);
+        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // grender(renderer, cam, scene1);
+        // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         //render to HDR framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, HDRframebuffer.fbo);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         render(renderer, cam, scene1);
+        //grender_lightning(gframebuffer.gPosition, gframebuffer.gNormal, gframebuffer.gAlbedo, scene1, cam, renderer);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         glBindFramebuffer(GL_FRAMEBUFFER, scary_framebuffer.fbo);
@@ -111,14 +119,9 @@ int main() {
 
         // render to screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderQuad(renderer, scary_framebuffer.texture);
+        renderQuad(renderer, HDRframebuffer.texture);
 
-        // // render normal scene
-        // if (camera_in_interior) {
-        //     render(renderer, cam, scene_interior);
-        // } else {
-        //     render(renderer, cam, scene_exterior);
-        // }
+
         glfwSwapBuffers(win);
         glfwPollEvents();
 

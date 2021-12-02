@@ -81,7 +81,8 @@ node_t make_scene(GLuint mirror_texture, GLuint cube_texture) {
     heartA.texture = cube_texture;
     
     node_t heart;
-    heart.kind = node_t::HEART;
+    heart.kind = node_t::STATIC_MESH;
+    heart.anime = node_t::ROTATION;
     heart.obj = load_obj(HEART_PATH);
     heart.obj.emissive = glm::vec3(1, 0.2, 0);
 

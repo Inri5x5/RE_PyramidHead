@@ -9,6 +9,15 @@ struct framebuffer_t {
     GLuint rbo;
 };
 
+
+struct gframebuffer_t {
+    GLuint fbo;
+    GLuint gPosition;
+    GLuint gNormal;
+    GLuint gAlbedo;
+    GLuint rbo;
+};
+
 /**
  * Create a framebuffer
  * @returns struct containing handle to FBO and the resulting texture
@@ -16,6 +25,7 @@ struct framebuffer_t {
 framebuffer_t make_framebuffer(int width, int height);
 framebuffer_t make_HDRframebuffer(int width, int height);
 framebuffer_t make_CubeMapframebuffer(int width, int height);
+gframebuffer_t make_gframebuffer(int width, int height);
 
 /**
  * Destroy a framebuffer, releasing GPU resources

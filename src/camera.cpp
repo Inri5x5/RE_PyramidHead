@@ -104,3 +104,32 @@ glm::mat4 get_view(const camera_t &cam) {
 
     return view;
 }
+
+void switchToFace(camera_t &ccamera, int faceIndex) {
+    switch (faceIndex) {
+        case 0:
+            ccamera.pitch = 0;
+            ccamera.yaw = -90;
+            break;
+        case 1:
+            ccamera.pitch = 0;
+            ccamera.yaw = 90;
+            break;
+        case 2:
+            ccamera.pitch = -90;
+            ccamera.yaw = 180;
+            break;
+        case 3:
+            ccamera.pitch = 90;
+            ccamera.yaw = 180;
+            break;
+        case 4:
+            ccamera.pitch = 0;
+            ccamera.yaw = 180;
+            break;
+        case 5:
+            ccamera.pitch = 0;
+            ccamera.yaw = 0;
+            break;
+    }
+}

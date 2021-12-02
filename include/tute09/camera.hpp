@@ -58,4 +58,7 @@ void update_camera(camera_t &cam, GLFWwindow *window, float dt);
 glm::mat4 get_view(const camera_t &cam);
 
 
+void switchToFace(camera_t &ccamera, int faceIndex);
+
+
 #endif // COMP3421_TUTORIAL_09_CAMERA_HPP

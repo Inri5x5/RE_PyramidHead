@@ -49,12 +49,6 @@ void main() {
     vec3 spec_col = srgb_to_linear(uSpecular * spec3.rgb);
     vec3 emit_col = srgb_to_linear(uEmissive);
 
-    // vec3 sun_dir = normalize(vec3(0,1,0));
-    // float sun_NdL = max(0, dot(normalize(vNormal), sun_dir));
-    // vec3 sun_col = srgb_to_linear(vec3(1,1,1));
-    // vec3 sun_diffuse = sun_col * diff_col * sun_NdL;
-    // vec3 sun_specular = spec_col * pow(max(dot(normalize(-vPos), reflect(-sun_dir, vNormal)), 0), uShininess) * sun_col;
-
     int i; vec3 uLightPos; vec3 uLightColor; float uLightAttenuation; 
     vec3 total_color_linear = vec3(0,0,0);
 
@@ -86,6 +80,7 @@ void main() {
         bool use_blinn = true;
         if (use_blinn) {
             specular = spec_col * pow(max(dot(normal, halfway), 0), uShininess) * light_col;
+            //specular = spec_col * max(dot(normal, halfway), 0) * light_col;
         } else {
             specular = spec_col * pow(max(dot(view_dir, reflection), 0), uShininess) * light_col;
         }

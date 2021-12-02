@@ -17,6 +17,18 @@ const char *HDR_FRAG_PATH = "res/shaders/hdr.frag";
 const char *SCARY_VERT_PATH = "res/shaders/scary.vert";
 const char *SCARY_FRAG_PATH = "res/shaders/scary.frag";
 
+const char *GGEOMETRY_VERT_PATH = "res/shaders/g_static_mesh.vert";
+const char *GGEOMETRY_FRAG_PATH = "res/shaders/g_static_mesh.frag";
+const char *GREFLECTIVE_VERT_PATH = "res/shaders/g_reflective.vert";
+const char *GREFLECTIVE_FRAG_PATH = "res/shaders/g_reflective.frag";
+const char *GPORTAL_VERT_PATH = "res/shaders/g_portal.vert";
+const char *GPORTAL_FRAG_PATH = "res/shaders/g_portal.frag";
+const char *GMIRROR_VERT_PATH = "res/shaders/g_mirror.vert";
+const char *GMIRROR_FRAG_PATH = "res/shaders/g_mirror.frag";
+const char *GLIGHT_VERT_PATH = "res/shaders/g_light.vert";
+const char *GLIGHT_FRAG_PATH = "res/shaders/g_light.frag";
+
+
 namespace {
     int locate(const std::string &name) {
         GLint program;
@@ -69,10 +81,22 @@ renderer_t make_renderer(const glm::mat4 &projection) {
             PORTAL_VERT_PATH, PORTAL_FRAG_PATH);
     renderer.prog_mirror = load_program(
             MIRROR_VERT_PATH, MIRROR_FRAG_PATH);
+
     renderer.prog_hdr = load_program(
             HDR_VERT_PATH, HDR_FRAG_PATH);
     renderer.prog_scary = load_program(
             SCARY_VERT_PATH, SCARY_FRAG_PATH);
+
+    renderer.g_geometry = load_program(
+            GGEOMETRY_VERT_PATH, GGEOMETRY_FRAG_PATH);
+    renderer.g_reflective = load_program(
+            GREFLECTIVE_VERT_PATH, GREFLECTIVE_FRAG_PATH);
+    renderer.g_portal = load_program(
+            GPORTAL_VERT_PATH, GPORTAL_FRAG_PATH);
+    renderer.g_mirror = load_program(
+            GMIRROR_VERT_PATH, GMIRROR_FRAG_PATH);
+    renderer.g_lightning = load_program(
+            GLIGHT_VERT_PATH, GLIGHT_FRAG_PATH);
 
     return renderer;
 }
@@ -134,6 +158,10 @@ void draw_portal(const renderer_t &renderer, const glm::mat4 &mv, const model_t 
 
 void draw_reflective(const renderer_t &renderer, const glm::mat4 &mv, const model_t &m, GLuint texture) {
     glUseProgram(renderer.prog_reflective);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
     set_uniform("u_model_view", mv);
@@ -177,8 +205,8 @@ void render(renderer_t &renderer, const camera_t &cam, const node_t &scene) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     renderer.view = get_view(cam);
 
@@ -199,20 +227,8 @@ void render(renderer_t &renderer, const camera_t &cam, const node_t &scene) {
                 set_uniform("uLightBColor", scene.point_lightB.color);
                 set_uniform("uLightBAttenuation", scene.point_lightB.attenuation);
                 break;
-            case node_t::HEART:
-                draw_model(renderer, renderer.view * xform, node.obj);
-                set_uniform("uLightAPos", scene.point_lightA.pos);
-                set_uniform("uLightAColor", scene.point_lightA.color);
-                set_uniform("uLightAAttenuation", scene.point_lightA.attenuation);
-                set_uniform("uLightBPos", scene.point_lightB.pos);
-                set_uniform("uLightBColor", scene.point_lightB.color);
-                set_uniform("uLightBAttenuation", scene.point_lightB.attenuation);
-                break;
             case node_t::REFLECTIVE:
                 draw_reflective(renderer, renderer.view * xform, node.obj, node.texture);
-                break;
-            case node_t::PORTAL:
-                draw_portal(renderer, renderer.view * xform, node.obj, node.texture);
                 break;
             case node_t::MIRROR:
                 draw_mirror(renderer, renderer.view, xform, node.obj, node.texture);
@@ -225,63 +241,12 @@ void render(renderer_t &renderer, const camera_t &cam, const node_t &scene) {
     }
 }
 
-void render(renderer_t &renderer, const cubecamera_t &cam, const node_t &scene) {
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
-
-    renderer.view = get_view(cam);
-
-    std::stack<std::pair<const node_t &, glm::mat4>> renderables{{{ scene, scene.transform }}};
-    while (!renderables.empty()) {
-        const auto &[node, parent_tf] = renderables.top();  // this is called a structured binding
-        renderables.pop();
-
-        glm::mat4 xform = parent_tf * node.transform;
-        //renderer.projection = cam.projection_matrix;
-        switch (node.kind) {
-            case node_t::STATIC_MESH:
-                draw_model(renderer, renderer.view * xform, node.obj);
-                set_uniform("uLightAPos", scene.point_lightA.pos);
-                set_uniform("uLightAColor", scene.point_lightA.color);
-                set_uniform("uLightAAttenuation", scene.point_lightA.attenuation);
-                set_uniform("uLightBPos", scene.point_lightB.pos);
-                set_uniform("uLightBColor", scene.point_lightB.color);
-                set_uniform("uLightBAttenuation", scene.point_lightB.attenuation);
-                break;
-            case node_t::HEART:
-                draw_model(renderer, renderer.view * xform, node.obj);
-                set_uniform("uLightAPos", scene.point_lightA.pos);
-                set_uniform("uLightAColor", scene.point_lightA.color);
-                set_uniform("uLightAAttenuation", scene.point_lightA.attenuation);
-                set_uniform("uLightBPos", scene.point_lightB.pos);
-                set_uniform("uLightBColor", scene.point_lightB.color);
-                set_uniform("uLightBAttenuation", scene.point_lightB.attenuation);
-                break;
-            case node_t::REFLECTIVE:
-                draw_reflective(renderer, renderer.view * xform, node.obj, node.texture);
-                break;
-            case node_t::PORTAL:
-                draw_portal(renderer, renderer.view * xform, node.obj, node.texture);
-                break;
-            case node_t::MIRROR:
-                draw_mirror(renderer, renderer.view, xform, node.obj, node.texture);
-                break;
-        }
-
-        for (const node_t &c: node.children) {
-            renderables.push({ c, xform });
-        }
-    }
-}
 
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
+
 void renderQuad(const renderer_t &renderer, GLuint &texture) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(renderer.prog_hdr);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -312,6 +277,7 @@ void renderQuad(const renderer_t &renderer, GLuint &texture) {
 }
 
 void renderKernel(const renderer_t &renderer, GLuint &texture) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(renderer.prog_scary);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -337,4 +303,188 @@ void renderKernel(const renderer_t &renderer, GLuint &texture) {
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
+}
+
+
+
+void draw_gmodel(const renderer_t &renderer, const glm::mat4 &mv, const model_t &m) {
+    glUseProgram(renderer.g_geometry);
+    set_uniform("uModelView", mv);
+    set_uniform("uProjection", renderer.projection);
+    //set_uniform("v", renderer.view);
+    set_uniform("uTexMap", 0);
+    set_uniform("uSpecMap", 1);
+
+    for (const mesh_t &mesh: m.meshes) {
+        if (mesh.material_id != -1) {
+            const material_t &mtl = m.materials[mesh.material_id];
+
+            glBindTexture(GL_TEXTURE_2D, mtl.texture);
+            set_uniform("uTexFactor", mtl.texture == 0 ? 0.f : 1.f);
+            set_uniform("uColor", mtl.color);
+        } else {
+            // default material
+            set_uniform("uTexFactor", 0.f);
+            set_uniform("uColor", glm::vec4(1, 1, 1, 1));
+        }
+
+        glBindVertexArray(mesh.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+        glDrawArrays(GL_TRIANGLES, 0, mesh.nverts);
+
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+void draw_greflective(const renderer_t &renderer, const glm::mat4 &mv, const model_t &m, GLuint texture) {
+    glUseProgram(renderer.g_reflective);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+    set_uniform("u_model_view", mv);
+    set_uniform("u_view", renderer.view);
+    set_uniform("u_projection", renderer.projection);
+
+    for (const mesh_t &mesh: m.meshes) {
+        glBindVertexArray(mesh.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+        glDrawArrays(GL_TRIANGLES, 0, mesh.nverts);
+
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+}
+
+void draw_gmirror(const renderer_t &renderer, const glm::mat4 &v, const glm::mat4 &m, const model_t &model, GLuint texture) {
+    glUseProgram(renderer.g_mirror);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    set_uniform("p", renderer.projection);
+    set_uniform("m", m);
+    set_uniform("v", v);
+    set_uniform("uTexMap", 0);
+    for (const mesh_t &mesh: model.meshes) {
+        glBindVertexArray(mesh.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+        glDrawArrays(GL_TRIANGLES, 0, mesh.nverts);
+
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+void draw_gportal(const renderer_t &renderer, const glm::mat4 &mv, const model_t &m, GLuint texture) {
+    glUseProgram(renderer.g_portal);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+    set_uniform("u_model_view", mv);
+    set_uniform("u_projection", renderer.projection);
+
+    for (const mesh_t &mesh: m.meshes) {
+        glBindVertexArray(mesh.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
+        glDrawArrays(GL_TRIANGLES, 0, mesh.nverts);
+
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+void grender(renderer_t &renderer, const camera_t &cam, const node_t &scene) {
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    renderer.view = get_view(cam);
+
+    std::stack<std::pair<const node_t &, glm::mat4>> renderables{{{ scene, scene.transform }}};
+    while (!renderables.empty()) {
+        const auto &[node, parent_tf] = renderables.top();  // this is called a structured binding
+        renderables.pop();
+
+        glm::mat4 xform = parent_tf * node.transform;
+
+        switch (node.kind) {
+            case node_t::REFLECTIVE:
+                draw_greflective(renderer, renderer.view * xform, node.obj, node.texture);
+                break;
+            case node_t::MIRROR:
+                draw_gmirror(renderer, renderer.view, xform, node.obj, node.texture);
+                break;
+            case node_t::STATIC_MESH:
+                draw_gmodel(renderer, renderer.view * xform, node.obj);
+                break;
+        }
+
+        for (const node_t &c: node.children) {
+            renderables.push({ c, xform });
+        }
+    }
+}
+
+unsigned int gquadVAO = 0;
+unsigned int gquadVBO;
+
+void grender_lightning(GLuint &gPosition, GLuint &gNormal, GLuint &gAlbedo, const node_t &scene, camera_t &cam, const renderer_t &renderer) {
+    glUseProgram(renderer.g_lightning);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gPosition);
+    set_uniform("gPosition", 0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, gNormal);
+    set_uniform("gNormal", 1);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, gAlbedo);
+    set_uniform("gAlbedo", 2);
+
+    set_uniform("v", renderer.view);
+    set_uniform("uLightAPos", scene.point_lightA.pos);
+    set_uniform("uLightAColor", scene.point_lightA.color);
+    set_uniform("uLightAAttenuation", scene.point_lightA.attenuation);
+    set_uniform("uLightBPos", scene.point_lightB.pos);
+    set_uniform("uLightBColor", scene.point_lightB.color);
+    set_uniform("uLightBAttenuation", scene.point_lightB.attenuation);
+    if (gquadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &gquadVAO);
+        glGenBuffers(1, &gquadVBO);
+        glBindVertexArray(gquadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, gquadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(gquadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glActiveTexture(GL_TEXTURE0 + 1);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
 }

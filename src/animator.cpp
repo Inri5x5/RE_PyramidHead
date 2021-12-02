@@ -15,9 +15,9 @@ void animate_heart(node_t &scene, float dt, camera_t &camera) {
         node_t *n = animatables.top();
         animatables.pop();
 
-        switch (n->kind) {
+        switch (n->anime) {
             
-            case node_t::HEART:
+            case node_t::ROTATION:
                 n->rotation.y += glm::radians(200.0f) * dt;
                 //n->transform *= glm::translate(glm::mat4(1.0), glm::vec3(camera.pos.x, camera.pos.y, camera.pos.z));
                 n->transform = glm::translate(glm::mat4(1.0), glm::vec3(camera.pos.x, camera.pos.y - 1, camera.pos.z ));

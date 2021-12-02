@@ -21,6 +21,12 @@ struct renderer_t {
     GLuint prog_hdr;
     GLuint prog_scary;
 
+    GLuint g_geometry;
+    GLuint g_reflective;
+    GLuint g_portal;
+    GLuint g_mirror;
+    GLuint g_lightning;
+
     glm::vec4 portal_clip_plane;
 };
 
@@ -78,9 +84,16 @@ void draw_mirror(const renderer_t &renderer, const glm::mat4 &v, const glm::mat4
  * @param scene the scene to draw.
  */
 void render(renderer_t &renderer, const camera_t &cam, const node_t &scene);
-void render(renderer_t &renderer, const cubecamera_t &cam, const node_t &scene);
 
 void renderQuad(const renderer_t &renderer, GLuint &texture);
 void renderKernel(const renderer_t &renderer, GLuint &texture);
+
+
+void draw_gmodel(const renderer_t &renderer, const glm::mat4 &mv, const model_t &m);
+void draw_greflective(const renderer_t &renderer, const glm::mat4 &mv, const model_t &m, GLuint texture);
+void draw_gmirror(const renderer_t &renderer, const glm::mat4 &v, const glm::mat4 &m, const model_t &model, GLuint texture);
+void draw_gportal(const renderer_t &renderer, const glm::mat4 &mv, const model_t &m, GLuint texture);
+void grender(renderer_t &renderer, const camera_t &cam, const node_t &scene);
+void grender_lightning(GLuint &gPosition, GLuint &gNormal, GLuint &gAlbedo, const node_t &scene, camera_t &cam, const renderer_t &renderer);
 
 #endif //COMP3421_TUTORIAL_09_RENDERER_HPP
