@@ -19,6 +19,7 @@ struct renderer_t {
     GLuint prog_portal;
     GLuint prog_mirror;
     GLuint prog_hdr;
+    GLuint prog_scary;
 
     glm::vec4 portal_clip_plane;
 };
@@ -77,7 +78,9 @@ void draw_mirror(const renderer_t &renderer, const glm::mat4 &v, const glm::mat4
  * @param scene the scene to draw.
  */
 void render(renderer_t &renderer, const camera_t &cam, const node_t &scene);
+void render(renderer_t &renderer, const cubecamera_t &cam, const node_t &scene);
 
 void renderQuad(const renderer_t &renderer, GLuint &texture);
+void renderKernel(const renderer_t &renderer, GLuint &texture);
 
 #endif //COMP3421_TUTORIAL_09_RENDERER_HPP

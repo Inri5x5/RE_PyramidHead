@@ -5,6 +5,7 @@
 
 #include <glm/ext.hpp>
 
+#include <tute09/cubecamera.hpp>
 #include <tute09/camera.hpp>
 #include <tute09/model.hpp>
 
@@ -54,7 +55,6 @@ node_t make_scene_interior(GLuint portal_texture);
  * Create the exterior scene
  */
 node_t make_scene_exterior(GLuint portal_texture);
-
-node_t make_scene(GLuint mirror_texture);
+node_t make_scene(GLuint mirror_texture, GLuint cube_texture);
 
 #endif //COMP3421_TUTORIAL_09_SCENE_HPP

@@ -9,6 +9,7 @@
 #include <chicken3421/chicken3421.hpp>
 
 #include <tute09/camera.hpp>
+#include <tute09/cubecamera.hpp>
 #include <tute09/memes.hpp>
 #include <tute09/renderer.hpp>
 #include <tute09/scene.hpp>
@@ -34,10 +35,14 @@ int main() {
 
     camera_t cam = make_camera({ 0, 10, 0 }, {-10, 10, 0 });
     int fb_width, fb_height;
+    int cm_size = 512;
     glfwGetFramebufferSize(win, &fb_width, &fb_height);
     framebuffer_t framebuffer = make_framebuffer(fb_width, fb_height);
     framebuffer_t HDRframebuffer = make_HDRframebuffer(fb_width, fb_height);
-    node_t scene1 = make_scene(framebuffer.texture);
+    framebuffer_t scary_framebuffer = make_framebuffer(fb_width, fb_height);
+    framebuffer_t CMframebuffer = make_CubeMapframebuffer(cm_size, cm_size);
+    cubecamera_t cubecamera = make_cubecamera({ 0, 1, 0 }, {-10, 10, 0 });
+    node_t scene1 = make_scene(framebuffer.texture, CMframebuffer.texture);
     renderer_t renderer = make_renderer(glm::perspective(glm::pi<double>() / 3, 1280.0 / 720, 0.001, 1000.0));
 
     while (!glfwWindowShouldClose(win)) {
@@ -71,6 +76,17 @@ int main() {
         // renderer.portal_clip_plane = glm::vec4(view_pnormal, view_pd);
 
 
+        glBindFramebuffer(GL_FRAMEBUFFER, CMframebuffer.fbo);
+        glViewport(0, 0, cm_size, cm_size);
+		for (int i = 0; i < 6; i++) {
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, CMframebuffer.texture, 0);
+			switchToFace(cubecamera,i);
+			render(renderer, cubecamera, scene1);
+		}
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, fb_width, fb_height);
+
+
         camera_t cam2 = cam;
         float x_distance = cam.pos.x - (-15.8);
         cam2.pos.x -= x_distance * 2;
@@ -83,16 +99,19 @@ int main() {
         //glDisable(GL_CLIP_DISTANCE0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
         //render to HDR framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, HDRframebuffer.fbo);
         render(renderer, cam, scene1);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+        glBindFramebuffer(GL_FRAMEBUFFER, scary_framebuffer.fbo);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderKernel(renderer, HDRframebuffer.texture);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // render to screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderQuad(renderer, HDRframebuffer.texture);
+        renderQuad(renderer, scary_framebuffer.texture);
 
         // // render normal scene
         // if (camera_in_interior) {

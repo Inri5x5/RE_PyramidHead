@@ -15,6 +15,7 @@ struct framebuffer_t {
  */
 framebuffer_t make_framebuffer(int width, int height);
 framebuffer_t make_HDRframebuffer(int width, int height);
+framebuffer_t make_CubeMapframebuffer(int width, int height);
 
 /**
  * Destroy a framebuffer, releasing GPU resources

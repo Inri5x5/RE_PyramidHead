@@ -55,7 +55,7 @@ node_t make_scene_exterior(GLuint portal_texture) {
     return scene;
 }
 
-node_t make_scene(GLuint mirror_texture) {
+node_t make_scene(GLuint mirror_texture, GLuint cube_texture) {
     node_t scene;
     point_light_t lightA = {
             glm::vec3{ 0, 50,-30 },
@@ -77,7 +77,8 @@ node_t make_scene(GLuint mirror_texture) {
 	node_t heartA;
     heartA.kind = node_t::REFLECTIVE;
     heartA.obj = load_obj(HEART_PATH);
-    heartA.texture = make_cubemap(SKYBOX_BASE_PATH);
+    //heartA.texture = make_cubemap(SKYBOX_BASE_PATH);
+    heartA.texture = cube_texture;
     
     node_t heart;
     heart.kind = node_t::HEART;

@@ -37,6 +37,7 @@ target_sources(${ACTIVITY}
         include/tute09/renderer.hpp
         include/tute09/scene.hpp
         include/tute09/animator.hpp
+        include/tute09/cubecamera.hpp
 
         src/animator.cpp
         src/camera.cpp
@@ -47,6 +48,7 @@ target_sources(${ACTIVITY}
         src/scene.cpp
         src/framebuffer.cpp
         src/cubemap.cpp
+        src/cubecamera.cpp
         )
 target_link_libraries(${ACTIVITY} PUBLIC ${COMMON_LIBS})
 target_compile_options(
