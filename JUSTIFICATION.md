@@ -34,6 +34,7 @@ The object that used cubemap on the game would be a reflective heart in the midd
 
 ### 3b: Realtime Cube Map. Describe how the cube map is created during the frame render and then used for a reflective object. Include code references to the generation of the cube map (3a should already describe the reflection process).
 
+You can see the real time cube map in the middle of "Reality World", where there is a reflective heart.
 Since it is a real-time cube map, I used a different framebuffer, which will generate a cubemap texture inside (`framebuffer/make_CubeMapframebuffer` line 69), where I generarte 6 textures for each faces. Then using a hard-coded placed camera (`main` line 55), and after binding the framebuffer, it switches over to 6 different side and render the scene as 6 different textures. (`main` line 90). Finally, the texture 
 was passed to the object asa complete cubemap texture (`main` line 59).
 
@@ -53,7 +54,7 @@ Will be explained more in 2b and 4b.
 
 ### 4b: Use of Kernels. Describe the kernel sampling technique in use, including code references.
 
-The kernels/effect used for this game would be the sharpenign effect, which could be seen in "Silent Hill World". The binding+rendering will take place on `main` line 143. The framebuffer was the same as the original framebuffer. The main part would be on `shaders/scary.frag`, where it sharpens
+The kernels/effect used for this game would be the sharpening effect, which could be seen in "Silent Hill World". The binding+rendering will take place on `main` line 143. The framebuffer was the same as the original framebuffer. The main part would be on `shaders/scary.frag`, where it sharpens
 every pixel by sampling its surrounding pixel.
 ### 4c: Multiple Intermediate Framebuffers. Show use of more than one framebuffer for post processing (like chaining two post processing effects in a row). Include references to code.
 
