@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 
-#include <tute09/framebuffer.hpp>
+#include <ass3/framebuffer.hpp>
 
 framebuffer_t make_framebuffer(int width, int height) {
     GLuint fbo, texture, rbo;

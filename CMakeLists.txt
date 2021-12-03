@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project("COMP3421 Tutorial 09")
+project("COMP3421 Assignment3")
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -31,13 +31,12 @@ target_include_directories(${ACTIVITY} PUBLIC include)
 target_sources(${ACTIVITY}
         ${target}
         PRIVATE
-        include/tute09/camera.hpp
-        include/tute09/memes.hpp
-        include/tute09/model.hpp
-        include/tute09/renderer.hpp
-        include/tute09/scene.hpp
-        include/tute09/animator.hpp
-        include/tute09/cubecamera.hpp
+        include/ass3/camera.hpp
+        include/ass3/memes.hpp
+        include/ass3/model.hpp
+        include/ass3/renderer.hpp
+        include/ass3/scene.hpp
+        include/ass3/animator.hpp
 
         src/animator.cpp
         src/camera.cpp
@@ -48,7 +47,6 @@ target_sources(${ACTIVITY}
         src/scene.cpp
         src/framebuffer.cpp
         src/cubemap.cpp
-        src/cubecamera.cpp
         )
 target_link_libraries(${ACTIVITY} PUBLIC ${COMMON_LIBS})
 target_compile_options(

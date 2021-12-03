@@ -2,7 +2,7 @@
 
 #include <chicken3421/chicken3421.hpp>
 
-#include <tute09/cubemap.hpp>
+#include <ass3/cubemap.hpp>
 
 namespace {
     const char* side_suffixes[] = {

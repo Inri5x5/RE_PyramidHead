@@ -1,7 +1,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
-#include <tute09/camera.hpp>
+#include <ass3/camera.hpp>
 
 namespace {
     const float CAMERA_SPEED = 10.f;

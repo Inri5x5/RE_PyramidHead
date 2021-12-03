@@ -80,10 +80,7 @@ void main() {
         bool use_blinn = true;
         if (use_blinn) {
             specular = spec_col * pow(max(dot(normal, halfway), 0), uShininess) * light_col;
-            //specular = spec_col * max(dot(normal, halfway), 0) * light_col;
-        } else {
-            specular = spec_col * pow(max(dot(view_dir, reflection), 0), uShininess) * light_col;
-        }
+        } 
 
         vec3 color_linear = vec3(0, 0, 0);
 

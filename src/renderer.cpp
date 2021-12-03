@@ -1,4 +1,4 @@
-#include <tute09/renderer.hpp>
+#include <ass3/renderer.hpp>
 
 #include <stack>
 
@@ -101,15 +101,21 @@ renderer_t make_renderer(const glm::mat4 &projection) {
     return renderer;
 }
 
-void draw_model(const renderer_t &renderer, const glm::mat4 &mv, const model_t &m) {
+void draw_model(const renderer_t &renderer, const glm::mat4 &mv, const model_t &m, const node_t &scene) {
     glUseProgram(renderer.prog_static_mesh);
 
     set_uniform("u_model_view", mv);
     set_uniform("u_projection", renderer.projection);
+    set_uniform("u_clip_plane", renderer.portal_clip_plane);
     set_uniform("v", renderer.view);
     set_uniform("uTexMap", 0);
     set_uniform("uSpecMap", 1);
-    //set_uniform("u_clip_plane", renderer.portal_clip_plane);
+    set_uniform("uLightAPos", scene.point_lightA.pos);
+    set_uniform("uLightAColor", scene.point_lightA.color);
+    set_uniform("uLightAAttenuation", scene.point_lightA.attenuation);
+    set_uniform("uLightBPos", scene.point_lightB.pos);
+    set_uniform("uLightBColor", scene.point_lightB.color);
+    set_uniform("uLightBAttenuation", scene.point_lightB.attenuation);
 
     for (const mesh_t &mesh: m.meshes) {
         if (mesh.material_id != -1) {
@@ -219,13 +225,7 @@ void render(renderer_t &renderer, const camera_t &cam, const node_t &scene) {
 
         switch (node.kind) {
             case node_t::STATIC_MESH:
-                draw_model(renderer, renderer.view * xform, node.obj);
-                set_uniform("uLightAPos", scene.point_lightA.pos);
-                set_uniform("uLightAColor", scene.point_lightA.color);
-                set_uniform("uLightAAttenuation", scene.point_lightA.attenuation);
-                set_uniform("uLightBPos", scene.point_lightB.pos);
-                set_uniform("uLightBColor", scene.point_lightB.color);
-                set_uniform("uLightBAttenuation", scene.point_lightB.attenuation);
+                draw_model(renderer, renderer.view * xform, node.obj, scene);
                 break;
             case node_t::REFLECTIVE:
                 draw_reflective(renderer, renderer.view * xform, node.obj, node.texture);
